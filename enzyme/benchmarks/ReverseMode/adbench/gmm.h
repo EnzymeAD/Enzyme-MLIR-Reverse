@@ -35,6 +35,11 @@ extern "C" {
             double *icfb, const double *x, Wishart wishart, double *err, double *
             errb);
 
+    void dgmm_objective_vec(int d, int k, int n, const double *alphas, double *
+            alphasb, const double *means, double *meansb, const double *icf,
+            double *icfb, const double *x, Wishart wishart, double *err, double *
+            errb);
+
     void gmm_objective_b(int d, int k, int n, const double *alphas, double *
         alphasb, const double *means, double *meansb, const double *icf,
         double *icfb, const double *x, Wishart wishart, double *err, double *
@@ -139,6 +144,8 @@ void calculate_jacobian(struct GMMInput &input, struct GMMOutput &result)
     double errb = 1.0;      // stores dY
                             // (equals to 1.0 for gradient calculation)
 
+    printf("size: %d\n", result.gradient.size());
+
     deriv(
         input.d,
         input.k,
@@ -196,32 +203,33 @@ int main(const int argc, const char* argv[]) {
 
     }
 
-    {
+    //{
+//
+    //struct GMMInput input;
+    //read_gmm_instance("data/" + path, &input.d, &input.k, &input.n,
+    //    input.alphas, input.means, input.icf, input.x, input.wishart, params.replicate_point);
+//
+    //int Jcols = (input.k * (input.d + 1) * (input.d + 2)) / 2;
+//
+    //struct GMMOutput result = { 0, std::vector<double>(Jcols) };
+//
+    //try {
+    //  struct timeval start, end;
+    //  gettimeofday(&start, NULL);
+    //  calculate_jacobian<adept_dgmm_objective>(input, result);
+    //  gettimeofday(&end, NULL);
+    //  printf("Adept combined %0.6f\n", tdiff(&start, &end));
+    //  for(unsigned i=0; i<5; i++) {
+    //    printf("%f ", result.gradient[i]);
+    //  }
+    //  printf("\n");
+    //} catch(std::bad_alloc) {
+    //   printf("Adept combined 88888888 ooms\n");
+    //}
+//
+    //}
 
-    struct GMMInput input;
-    read_gmm_instance("data/" + path, &input.d, &input.k, &input.n,
-        input.alphas, input.means, input.icf, input.x, input.wishart, params.replicate_point);
-
-    int Jcols = (input.k * (input.d + 1) * (input.d + 2)) / 2;
-
-    struct GMMOutput result = { 0, std::vector<double>(Jcols) };
-
-    try {
-      struct timeval start, end;
-      gettimeofday(&start, NULL);
-      calculate_jacobian<adept_dgmm_objective>(input, result);
-      gettimeofday(&end, NULL);
-      printf("Adept combined %0.6f\n", tdiff(&start, &end));
-      for(unsigned i=0; i<5; i++) {
-        printf("%f ", result.gradient[i]);
-      }
-      printf("\n");
-    } catch(std::bad_alloc) {
-       printf("Adept combined 88888888 ooms\n");
-    }
-
-    }
-
+    // Enzyme Reverse-Mode AD
     {
 
     struct GMMInput input;
@@ -237,7 +245,7 @@ int main(const int argc, const char* argv[]) {
       gettimeofday(&start, NULL);
       calculate_jacobian<dgmm_objective>(input, result);
       gettimeofday(&end, NULL);
-      printf("Enzyme combined %0.6f\n", tdiff(&start, &end));
+      printf("Enzyme Reverse combined %0.6f\n", tdiff(&start, &end));
       for(unsigned i=0; i<5; i++) {
         printf("%f ", result.gradient[i]);
       }
@@ -245,6 +253,32 @@ int main(const int argc, const char* argv[]) {
     }
 
     }
+
+
+     // Enzyme Reverse Vector-Mode AD
+    // {
+
+    // struct GMMInput input;
+    // read_gmm_instance("data/" + path, &input.d, &input.k, &input.n,
+    //     input.alphas, input.means, input.icf, input.x, input.wishart, params.replicate_point);
+
+    // int Jcols = (input.k * (input.d + 1) * (input.d + 2)) / 2;
+
+    // struct GMMOutput result = { 0, std::vector<double>(Jcols) };
+
+    // {
+    //   struct timeval start, end;
+    //   gettimeofday(&start, NULL);
+    //   calculate_jacobian<dgmm_objective_vec>(input, result);
+    //   gettimeofday(&end, NULL);
+    //   printf("Enzyme Revers-Vector combined %0.6f\n", tdiff(&start, &end));
+    //   for(unsigned i=0; i<5; i++) {
+    //     printf("%f ", result.gradient[i]);
+    //   }
+    //   printf("\n");
+    // }
+
+    // }
 
     }
 }
