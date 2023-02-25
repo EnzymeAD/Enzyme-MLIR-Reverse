@@ -1,6 +1,5 @@
 #pragma once
 
-#include "mlir/IR/BlockAndValueMapping.h"
 #include "mlir/IR/FunctionInterfaces.h"
 
 namespace mlir {

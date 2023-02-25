@@ -1,22 +1,7 @@
-#include "Dialect/Ops.h"
-#include "Interfaces/AutoDiffOpInterface.h"
-#include "Interfaces/AutoDiffTypeInterface.h"
-#include "Interfaces/GradientUtils.h"
-#include "Interfaces/GradientUtilsReverse.h"
-#include "mlir/IR/FunctionInterfaces.h"
-#include "mlir/IR/Matchers.h"
-#include "mlir/IR/SymbolTable.h"
-
-// TODO: this shouldn't depend on specific dialects except Enzyme.
-#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
-
-#include "mlir/Dialect/ControlFlow/IR/ControlFlowOps.h"
-#include "mlir/Dialect/Func/IR/FuncOps.h"
-#include "mlir/IR/Dominance.h"
-#include "llvm/ADT/BreadthFirstIterator.h"
-
 #include "EnzymeLogic.h"
 #include "GradientUtils.h"
+#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
+#include "Interfaces/AutoDiffTypeInterface.h"
 
 using namespace mlir;
 using namespace mlir::enzyme;

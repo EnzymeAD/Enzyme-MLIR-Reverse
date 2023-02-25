@@ -7,34 +7,12 @@
 //===----------------------------------------------------------------------===//
 
 #include "Ops.h"
-#include "Dialect.h"
-#include "mlir/Dialect/Arith/IR/Arith.h"
-#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
-#include "mlir/Dialect/LLVMIR/LLVMTypes.h"
-#include "mlir/IR/AffineExpr.h"
-#include "mlir/IR/Builders.h"
-#include "mlir/IR/OpImplementation.h"
-#include "mlir/Interfaces/SideEffectInterfaces.h"
-
-#include "mlir/Dialect/Affine/IR/AffineOps.h"
-#include "mlir/Dialect/Arith/Utils/Utils.h"
 #include "mlir/Dialect/Func/IR/FuncOps.h"
-#include "mlir/Dialect/MemRef/IR/MemRef.h"
-#include "mlir/Dialect/OpenMP/OpenMPDialect.h"
-#include "mlir/Dialect/SCF/IR/SCF.h"
-#include "mlir/IR/BlockAndValueMapping.h"
-#include "mlir/IR/IntegerSet.h"
-
-#include "llvm/ADT/SetVector.h"
-#include "llvm/Support/Debug.h"
-
-#include "llvm/ADT/TypeSwitch.h"
 
 #define DEBUG_TYPE "enzyme"
 
 using namespace mlir;
 using namespace enzyme;
-using namespace mlir::arith;
 
 //===----------------------------------------------------------------------===//
 // GetFuncOp

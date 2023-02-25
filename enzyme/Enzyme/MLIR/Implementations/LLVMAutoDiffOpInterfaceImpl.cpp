@@ -16,8 +16,6 @@
 #include "Interfaces/AutoDiffTypeInterface.h"
 #include "Interfaces/GradientUtils.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
-#include "mlir/IR/DialectRegistry.h"
-#include "mlir/Support/LogicalResult.h"
 
 using namespace mlir;
 using namespace mlir::enzyme;
