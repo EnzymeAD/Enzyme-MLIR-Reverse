@@ -8,10 +8,10 @@
 
 #include "Interfaces/GradientUtils.h"
 #include "CloneFunction.h"
-#include "mlir/IR/Matchers.h"
-#include "Interfaces/AutoDiffTypeInterface.h"
-#include "Interfaces/AutoDiffOpInterface.h"
 #include "Dialect/Ops.h"
+#include "Interfaces/AutoDiffOpInterface.h"
+#include "Interfaces/AutoDiffTypeInterface.h"
+#include "mlir/IR/Matchers.h"
 
 using namespace mlir;
 using namespace mlir::enzyme;

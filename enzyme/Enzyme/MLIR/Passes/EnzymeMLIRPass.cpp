@@ -10,7 +10,6 @@
 // a generic parallel for representation
 //===----------------------------------------------------------------------===//
 
-
 #include "Interfaces/GradientUtils.h"
 #include "Interfaces/GradientUtilsReverse.h"
 #include "PassDetails.h"

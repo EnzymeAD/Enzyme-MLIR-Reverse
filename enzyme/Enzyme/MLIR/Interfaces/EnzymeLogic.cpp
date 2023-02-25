@@ -1,7 +1,7 @@
 #include "EnzymeLogic.h"
 #include "GradientUtils.h"
-#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "Interfaces/AutoDiffTypeInterface.h"
+#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 
 using namespace mlir;
 using namespace mlir::enzyme;

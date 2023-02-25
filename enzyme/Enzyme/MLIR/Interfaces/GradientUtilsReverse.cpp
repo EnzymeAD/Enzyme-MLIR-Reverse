@@ -7,12 +7,12 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "CloneFunction.h"
 #include "GradientUtilsReverse.h"
-#include "llvm/ADT/SmallPtrSet.h"
-#include "mlir/IR/Matchers.h"
-#include "Interfaces/AutoDiffTypeInterface.h"
+#include "CloneFunction.h"
 #include "Dialect/Ops.h"
+#include "Interfaces/AutoDiffTypeInterface.h"
+#include "mlir/IR/Matchers.h"
+#include "llvm/ADT/SmallPtrSet.h"
 
 using namespace mlir;
 using namespace mlir::enzyme;

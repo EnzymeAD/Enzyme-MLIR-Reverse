@@ -11,9 +11,8 @@
 //===----------------------------------------------------------------------===//
 
 #include "PassDetails.h"
-#include "mlir/Transforms/DialectConversion.h"
 #include "mlir/IR/Dominance.h"
-
+#include "mlir/Transforms/DialectConversion.h"
 
 using namespace mlir;
 using namespace enzyme;
