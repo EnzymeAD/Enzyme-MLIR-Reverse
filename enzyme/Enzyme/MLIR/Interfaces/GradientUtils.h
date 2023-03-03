@@ -7,11 +7,12 @@
 //===----------------------------------------------------------------------===//
 #pragma once
 
-#include "Interfaces/CloneFunction.h"
-#include "Interfaces/EnzymeLogic.h"
+#include "CloneFunction.h"
 
+#include "Interfaces/EnzymeLogic.h"
 #include "mlir/IR/BlockAndValueMapping.h"
 #include "mlir/IR/FunctionInterfaces.h"
+#include "llvm/ADT/SmallPtrSet.h"
 
 namespace mlir {
 namespace enzyme {

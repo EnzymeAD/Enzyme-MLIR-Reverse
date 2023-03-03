@@ -10,21 +10,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Dialect/Dialect.h"
-#include "Dialect/Ops.h"
 #include "PassDetails.h"
-#include "Passes/Passes.h"
-#include "mlir/Dialect/Arith/IR/Arith.h"
-#include "mlir/Dialect/ControlFlow/IR/ControlFlowOps.h"
-#include "mlir/Dialect/Func/IR/FuncOps.h"
-#include "mlir/Dialect/MemRef/IR/MemRef.h"
-#include "mlir/Dialect/SCF/IR/SCF.h"
-#include "mlir/Transforms/DialectConversion.h"
-
-#include "mlir/Rewrite/PatternApplicator.h"
-
 #include "mlir/IR/Dominance.h"
-#include "llvm/Support/raw_ostream.h"
+#include "mlir/Transforms/DialectConversion.h"
 
 using namespace mlir;
 using namespace enzyme;

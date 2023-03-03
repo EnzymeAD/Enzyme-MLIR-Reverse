@@ -16,9 +16,6 @@
 #include "mlir/Dialect/Arith/IR/Arith.h"
 #include "mlir/IR/Builders.h"
 #include "mlir/IR/BuiltinDialect.h"
-#include "mlir/IR/BuiltinTypes.h"
-#include "mlir/IR/DialectRegistry.h"
-#include "mlir/Support/LLVM.h"
 
 using namespace mlir;
 using namespace mlir::enzyme;

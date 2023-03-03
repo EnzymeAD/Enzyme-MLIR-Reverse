@@ -16,12 +16,6 @@
 #include "Interfaces/GradientUtils.h"
 #include "Interfaces/GradientUtilsReverse.h"
 #include "mlir/Dialect/Arith/IR/Arith.h"
-#include "mlir/Dialect/SCF/IR/SCF.h"
-#include "mlir/IR/DialectRegistry.h"
-#include "mlir/Support/LogicalResult.h"
-
-#include "Dialect/Ops.h"
-#include "mlir/IR/TypeSupport.h"
 
 using namespace mlir;
 using namespace mlir::enzyme;

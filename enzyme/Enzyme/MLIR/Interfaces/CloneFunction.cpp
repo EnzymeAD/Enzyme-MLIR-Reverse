@@ -1,5 +1,9 @@
 #include "CloneFunction.h"
 
+#include "Interfaces/AutoDiffTypeInterface.h"
+#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
+#include "mlir/IR/BlockAndValueMapping.h"
+
 using namespace mlir;
 using namespace mlir::enzyme;
 

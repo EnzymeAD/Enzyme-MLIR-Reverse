@@ -17,8 +17,6 @@
 #include "Interfaces/GradientUtils.h"
 #include "Interfaces/GradientUtilsReverse.h"
 #include "mlir/Dialect/SCF/IR/SCF.h"
-#include "mlir/IR/DialectRegistry.h"
-#include "mlir/Support/LogicalResult.h"
 
 using namespace mlir;
 using namespace mlir::enzyme;

@@ -7,11 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mlir/IR/BlockAndValueMapping.h"
-#include "mlir/IR/FunctionInterfaces.h"
-
 #include "CloneFunction.h"
-#include "EnzymeLogic.h"
+#include "mlir/IR/BlockAndValueMapping.h"
 
 namespace mlir {
 namespace enzyme {
