@@ -204,7 +204,7 @@ void MEnzymeLogic::handlePredecessors(Block *oBB, Block *newBB,
     for (const auto &[diffeType, oldArg] :
          llvm::zip(gutils->ArgDiffeTypes,
                    gutils->oldFunc.getFunctionBody().getArguments())) {
-      if (diffeType == DIFFE_TYPE_MLIR::OUT_DIFF) {
+      if (diffeType == DIFFE_TYPE::OUT_DIFF) {
         retargs.push_back(gutils->invertPointerM(oldArg, revBuilder));
       }
     }
@@ -350,11 +350,10 @@ void MEnzymeLogic::differentiate(MGradientUtilsReverse *gutils,
 }
 
 FunctionOpInterface MEnzymeLogic::CreateReverseDiff(
-    FunctionOpInterface fn, DIFFE_TYPE_MLIR retType,
-    std::vector<DIFFE_TYPE_MLIR> constants, MTypeAnalysis &TA, bool returnUsed,
-    DerivativeModeMLIR mode, bool freeMemory, size_t width,
-    mlir::Type addedType, MFnTypeInfo type_args,
-    std::vector<bool> volatile_args, void *augmented,
+    FunctionOpInterface fn, DIFFE_TYPE retType,
+    std::vector<DIFFE_TYPE> constants, MTypeAnalysis &TA, bool returnUsed,
+    DerivativeMode mode, bool freeMemory, size_t width, mlir::Type addedType,
+    MFnTypeInfo type_args, std::vector<bool> volatile_args, void *augmented,
     SymbolTableCollection &symbolTable) {
 
   if (fn.getFunctionBody().empty()) {
@@ -362,7 +361,7 @@ FunctionOpInterface MEnzymeLogic::CreateReverseDiff(
     llvm_unreachable("Differentiating empty function");
   }
 
-  ReturnTypeMLIR returnValue = ReturnTypeMLIR::Args;
+  ReturnType returnValue = ReturnType::Tape;
   MGradientUtilsReverse *gutils = MGradientUtilsReverse::CreateFromClone(
       *this, mode, width, fn, TA, type_args, retType, /*diffeReturnArg*/ true,
       constants, returnValue, addedType, symbolTable);
