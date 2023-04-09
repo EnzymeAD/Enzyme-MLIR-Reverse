@@ -37,6 +37,11 @@ def RemoveUnusedEnzymeOpsPass : Pass<"remove-unnecessary-enzyme-ops"> {
   let constructor = "mlir::enzyme::createRemoveUnusedEnzymeOpsPass()";
 }
 
+def Enzyme2RegPass : Pass<"enzyme2reg"> {
+  let summary = "";
+  let constructor = "mlir::enzyme::createEnzyme2RegPass()";
+}
+
 def LowerToLLVMEnzymePass : Pass<"lower-to-llvm-enzyme"> {
   let summary = "Lower enzyme.diff ops to LLVM Enzyme-compatible calls";
   let constructor = "mlir::enzyme::createLowerToLLVMEnzymePass()";
