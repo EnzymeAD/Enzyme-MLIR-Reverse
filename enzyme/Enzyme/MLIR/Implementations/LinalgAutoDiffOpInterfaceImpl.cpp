@@ -20,11 +20,14 @@
 #include "mlir/Dialect/Linalg/IR/Linalg.h"
 #include "mlir/IR/DialectRegistry.h"
 #include "mlir/Support/LogicalResult.h"
+#include <functional>
 
 using namespace mlir;
 using namespace mlir::enzyme;
 
 namespace {
+
+
 // TODO: Try to find a way to register autodiff interface for all LinalgOps
 struct GenericOpInterfaceReverse
     : public ReverseAutoDiffOpInterface::ExternalModel<
@@ -43,35 +46,47 @@ struct GenericOpInterfaceReverse
                                          getParallelIteratorTypeName()};
 
     for (OpOperand *output : linalgOp.getOutputOperands()) {
-      indexingMaps.push_back(linalgOp.getMatchingIndexingMap(output));
-      outputs.push_back(gutils->invertPointerM(output->get(), builder));
+      if(gutils->hasInvertPointer(output->get())){
+        indexingMaps.push_back(linalgOp.getMatchingIndexingMap(output));
+        outputs.push_back(gutils->invertPointerM(output->get(), builder));
+      }
     }
-    // for (OpOperand *input : linalgOp.getInputOperands()) {
-    //   indexingMaps.push_back(linalgOp.getMatchingIndexingMap(input));
-    //   inputs.push_back(gutils->getNewFromOriginal(input->get()));
-    // }
 
-    // TODO: this assumes we're only differentiating the first argument.
-    // if (gutils->hasInvertPointer(linalgOp.getInputOperand(0)->get())) {
-    //   outputs.push_back(
-    //       gutils->invertPointerM(linalgOp.getInputOperand(0)->get(),
-    //       builder));
-    //   indexingMaps.push_back(
-    //       linalgOp.getMatchingIndexingMap(linalgOp.getInputOperand(0)));
-    // }
+    for (OpOperand *input : linalgOp.getInputOperands()) {
+      if(gutils->hasInvertPointer(input->get())){
+        indexingMaps.push_back(linalgOp.getMatchingIndexingMap(input));
+        inputs.push_back(gutils->invertPointerM(input->get(), builder));
+      }
+    }
 
     auto adjoint = builder.create<linalg::GenericOp>(
-        op->getLoc(), inputs, outputs, indexingMaps, iteratorTypes);
-
-    buildReturnFunction buildFuncReturnOp = [](OpBuilder &builder, Location loc,
+        op->getLoc(), outputs, inputs, indexingMaps, iteratorTypes);
+  
+    int numInputs = inputs.size();
+    std::function<buildReturnFunction> buildFuncReturnOp = [numInputs](OpBuilder &builder, Location loc,
                                                SmallVector<Value> retargs) {
-      builder.create<linalg::YieldOp>(loc, ValueRange{retargs}.take_back(1));
+      builder.create<linalg::YieldOp>(loc, ValueRange{retargs}.take_front(numInputs));
       return;
     };
 
     gutils->Logic.differentiate(gutils, *linalgOp.getBlock()->getParent(),
                                 adjoint.getBodyRegion(),
                                 /*parentRegion=*/false, buildFuncReturnOp);
+
+    Block * body = &(adjoint.getBodyRegion().front());
+    auto yieldOp = cast<linalg::YieldOp>(body->getTerminator());
+
+    for(auto opOperand : yieldOp.getOperands()){
+      body->addArgument(opOperand.getType(), opOperand.getLoc());
+    }
+    OpBuilder builderAdd(yieldOp);
+    for (auto it : llvm::enumerate(yieldOp.getOperands())) {
+      Value arg = body->getArgument(outputs.size() + it.index());
+      auto diffeType = cast<AutoDiffTypeInterface>(arg.getType());
+      Value grad = diffeType.createAddOp(builderAdd, it.value().getLoc(), arg, it.value());
+      yieldOp.setOperand(it.index(), grad);
+    }
+      
   }
 
   SmallVector<Value> cacheValues(Operation *op,

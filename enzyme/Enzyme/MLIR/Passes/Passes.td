@@ -42,6 +42,11 @@ def Enzyme2RegPass : Pass<"enzyme2reg"> {
   let constructor = "mlir::enzyme::createEnzyme2RegPass()";
 }
 
+def HoistCachesPass : Pass<"hoist-caches"> {
+  let summary = "";
+  let constructor = "mlir::enzyme::createHoistCachesPass()";
+}
+
 def LowerToLLVMEnzymePass : Pass<"lower-to-llvm-enzyme"> {
   let summary = "Lower enzyme.diff ops to LLVM Enzyme-compatible calls";
   let constructor = "mlir::enzyme::createLowerToLLVMEnzymePass()";

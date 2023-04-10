@@ -27,6 +27,7 @@
 #include "mlir/IR/Dominance.h"
 #include "llvm/ADT/BreadthFirstIterator.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/ADT/SmallSet.h"
 
 using namespace mlir;
 using namespace enzyme;
@@ -49,26 +50,39 @@ SmallVector<mlir::Block *> getDominatorToposort(Region &region) {
   return dominatorToposortBlocks;
 }
 
-void Enzyme2Reg(FunctionOpInterface op) {
-  if (op.getFunctionBody().begin() != op.getFunctionBody().end()) {
+SmallVector<Value> Enzyme2Reg(Region &region, bool ignoreFirstBlock) {
+  if (region.begin() != region.end()) {
     SmallVector<mlir::Block *> blocks =
-        getDominatorToposort(op.getFunctionBody());
-    SmallVector<Value> gradients;
+        getDominatorToposort(region);
+    llvm::SmallPtrSet<Value, 4> gradientsSet;
 
     // Collect all gradient values
     for (Block *block : blocks) {
       block->walk([&](Operation *op) {
         if (auto initOp = dyn_cast<enzyme::InitOp>(op)) {
           if (auto type = dyn_cast<enzyme::GradientType>(initOp.getType())) {
-            gradients.push_back(initOp);
+            gradientsSet.insert(initOp);
+          }
+        }
+        else if (auto getOp = dyn_cast<enzyme::GetOp>(op)) {
+          if (auto type = dyn_cast<enzyme::GradientType>(getOp.getGradient().getType())) {
+            gradientsSet.insert(getOp.getGradient());
+          }
+        }
+        else if (auto setOp = dyn_cast<enzyme::SetOp>(op)) {
+          if (auto type = dyn_cast<enzyme::GradientType>(setOp.getGradient().getType())) {
+            gradientsSet.insert(setOp.getGradient());
           }
         }
       });
     }
 
+    SmallVector<Value> gradients(gradientsSet.begin(), gradientsSet.end());
+
     // Write all gradient values to block parameters
     // TODO : Do we always ignore the first block?
-    for (int i = 1; i < blocks.size(); i++) {
+    int start = (int) ignoreFirstBlock;
+    for (int i = start; i < blocks.size(); i++) {
       Block *block = blocks[i];
       for (Value grad : gradients) {
         enzyme::GradientType type = grad.getType().cast<enzyme::GradientType>();
@@ -137,7 +151,10 @@ void Enzyme2Reg(FunctionOpInterface op) {
         }
       });
     }
+
+    return gradients;
   }
+  return SmallVector<Value>();
 }
 
 struct Enzyme2RegPass : public enzyme::Enzyme2RegPassBase<Enzyme2RegPass> {
@@ -145,7 +162,7 @@ struct Enzyme2RegPass : public enzyme::Enzyme2RegPassBase<Enzyme2RegPass> {
     MLIRContext *context = &getContext();
 
     Region *region = getOperation()->getParentRegion();
-    getOperation()->walk([&](FunctionOpInterface op) { Enzyme2Reg(op); });
+    getOperation()->walk([&](FunctionOpInterface op) { Enzyme2Reg(op.getFunctionBody(), true); });
   };
 };
 } // end anonymous namespace

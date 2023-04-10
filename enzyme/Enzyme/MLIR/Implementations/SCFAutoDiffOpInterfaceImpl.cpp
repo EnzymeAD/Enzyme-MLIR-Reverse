@@ -19,6 +19,8 @@
 #include "mlir/Dialect/SCF/IR/SCF.h"
 #include "mlir/IR/DialectRegistry.h"
 #include "mlir/Support/LogicalResult.h"
+#include <functional>
+#include "Interfaces/EnzymeLogic.h"
 
 using namespace mlir;
 using namespace mlir::enzyme;
@@ -122,7 +124,7 @@ struct ForOpInterfaceReverse
         gutils->popCache(caches[2], builder), nArgs); // TODO
     repFor.getRegion().begin()->erase();
 
-    buildReturnFunction buildFuncReturnOp = [](OpBuilder &builder, Location loc,
+    std::function<buildReturnFunction> buildFuncReturnOp = [](OpBuilder &builder, Location loc,
                                                SmallVector<Value> retargs) {
       builder.create<scf::YieldOp>(loc, retargs);
       return;

@@ -4,12 +4,14 @@
 #include "mlir/IR/FunctionInterfaces.h"
 
 #include "../../Utils.h"
+#include <functional>
 
 namespace mlir {
 namespace enzyme {
 
-typedef void (*buildReturnFunction)(OpBuilder &, Location,
+typedef void (buildReturnFunction)(OpBuilder &, Location,
                                     SmallVector<mlir::Value>);
+using brf = std::function<buildReturnFunction>;
 
 class MGradientUtilsReverse;
 
@@ -108,8 +110,7 @@ public:
                          MGradientUtilsReverse *gutils);
   void handlePredecessors(Block *oBB, Block *newBB, Block *reverseBB,
                           MGradientUtilsReverse *gutils,
-                          void (*buildReturnOp)(OpBuilder &, Location,
-                                                SmallVector<mlir::Value>),
+                          brf buildReturnOp,
                           bool parentRegion);
   void visitChildren(Block *oBB, Block *reverseBB,
                      MGradientUtilsReverse *gutils);
@@ -125,7 +126,7 @@ public:
                                                   Region &region);
   void differentiate(MGradientUtilsReverse *gutils, Region &oldRegion,
                      Region &newRegion, bool parentRegion,
-                     buildReturnFunction buildFuncRetrunOp);
+                     brf buildFuncRetrunOp);
 };
 
 } // Namespace enzyme

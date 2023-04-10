@@ -195,7 +195,7 @@ void MEnzymeLogic::visitChildren(Block *oBB, Block *reverseBB,
 void MEnzymeLogic::handlePredecessors(Block *oBB, Block *newBB,
                                       Block *reverseBB,
                                       MGradientUtilsReverse *gutils,
-                                      buildReturnFunction buildReturnOp,
+                                      brf buildReturnOp,
                                       bool parentRegion) {
   OpBuilder revBuilder(reverseBB, reverseBB->end());
   if (oBB->hasNoPredecessors()) {
@@ -340,7 +340,7 @@ void MEnzymeLogic::initializeShadowValues(
 void MEnzymeLogic::differentiate(MGradientUtilsReverse *gutils,
                                  Region &oldRegion, Region &newRegion,
                                  bool parentRegion,
-                                 buildReturnFunction buildFuncReturnOp) {
+                                 brf buildFuncReturnOp) {
   gutils->createReverseModeBlocks(oldRegion, newRegion, parentRegion);
 
   SmallVector<mlir::Block *> dominatorToposortBlocks =
@@ -381,7 +381,7 @@ FunctionOpInterface MEnzymeLogic::CreateReverseDiff(
   Region &oldRegion = gutils->oldFunc.getFunctionBody();
   Region &newRegion = gutils->newFunc.getFunctionBody();
 
-  buildReturnFunction buildFuncReturnOp = [](OpBuilder &builder, Location loc,
+  brf buildFuncReturnOp = [](OpBuilder &builder, Location loc,
                                              SmallVector<Value> retargs) {
     builder.create<func::ReturnOp>(loc, retargs);
     return;
@@ -391,9 +391,9 @@ FunctionOpInterface MEnzymeLogic::CreateReverseDiff(
 
   auto nf = gutils->newFunc;
 
-  // llvm::errs() << "nf\n";
-  // nf.dump();
-  // llvm::errs() << "nf end\n";
+  llvm::errs() << "nf\n";
+  nf.dump();
+  llvm::errs() << "nf end\n";
 
   delete gutils;
   return nf;

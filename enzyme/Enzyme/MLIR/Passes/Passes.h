@@ -27,6 +27,8 @@ std::unique_ptr<Pass> createShadowedGradientToCachePass();
 std::unique_ptr<Pass> createRemoveUnusedEnzymeOpsPass();
 
 std::unique_ptr<Pass> createEnzyme2RegPass();
+
+std::unique_ptr<Pass> createHoistCachesPass();
 } // namespace enzyme
 } // namespace mlir
 
