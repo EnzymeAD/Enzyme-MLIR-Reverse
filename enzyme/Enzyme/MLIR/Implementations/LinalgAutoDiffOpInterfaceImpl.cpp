@@ -18,6 +18,9 @@
 #include "Interfaces/GradientUtilsReverse.h"
 
 #include "mlir/Dialect/Linalg/IR/Linalg.h"
+#include "mlir/Dialect/MemRef/IR/MemRef.h"
+#include "mlir/Dialect/Arith/IR/Arith.h"
+
 #include "mlir/IR/DialectRegistry.h"
 #include "mlir/Support/LogicalResult.h"
 #include <functional>
@@ -27,7 +30,24 @@ using namespace mlir::enzyme;
 
 namespace {
 
-
+Value invertMemref(Value inp, OpBuilder &builder, Location loc){
+  MemRefType iType = dyn_cast<MemRefType>(inp.getType());
+  SmallVector<Value> dims;
+  SmallVector<Value> dimSubOnes;
+  SmallVector<Value> strides;
+  Value negOne = builder.create<arith::ConstantIndexOp>(loc, -1);
+  for (int i = 0; i < iType.getShape().size(); i++){
+    Value dim = builder.create<memref::DimOp>(loc, inp, i);
+    dims.push_back(dim);
+    auto dimSubOne = builder.create<arith::AddIOp>(loc, dim, negOne);
+    dimSubOnes.push_back(dimSubOne);
+    strides.push_back(negOne);
+  }
+  Value view = builder.create<memref::SubViewOp>(
+    loc, inp, ValueRange(dimSubOnes), ValueRange(dims),
+    ValueRange(strides));
+  return view;
+}
 // TODO: Try to find a way to register autodiff interface for all LinalgOps
 struct GenericOpInterfaceReverse
     : public ReverseAutoDiffOpInterface::ExternalModel<
@@ -48,20 +68,24 @@ struct GenericOpInterfaceReverse
     for (OpOperand *output : linalgOp.getOutputOperands()) {
       if(gutils->hasInvertPointer(output->get())){
         indexingMaps.push_back(linalgOp.getMatchingIndexingMap(output));
-        outputs.push_back(gutils->invertPointerM(output->get(), builder));
+        Value out = gutils->invertPointerM(output->get(), builder);
+        Value view = invertMemref(out, builder, op->getLoc());
+        outputs.push_back(view);
       }
     }
 
     for (OpOperand *input : linalgOp.getInputOperands()) {
       if(gutils->hasInvertPointer(input->get())){
         indexingMaps.push_back(linalgOp.getMatchingIndexingMap(input));
-        inputs.push_back(gutils->invertPointerM(input->get(), builder));
+        Value inp = gutils->invertPointerM(input->get(), builder);
+        Value view = invertMemref(inp, builder, op->getLoc());
+        inputs.push_back(view);
       }
     }
 
     auto adjoint = builder.create<linalg::GenericOp>(
         op->getLoc(), outputs, inputs, indexingMaps, iteratorTypes);
-  
+
     int numInputs = inputs.size();
     std::function<buildReturnFunction> buildFuncReturnOp = [numInputs](OpBuilder &builder, Location loc,
                                                SmallVector<Value> retargs) {
@@ -86,7 +110,6 @@ struct GenericOpInterfaceReverse
       Value grad = diffeType.createAddOp(builderAdd, it.value().getLoc(), arg, it.value());
       yieldOp.setOperand(it.index(), grad);
     }
-      
   }
 
   SmallVector<Value> cacheValues(Operation *op,

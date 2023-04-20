@@ -38,7 +38,7 @@ namespace {
 
 
 void HoistCaches(Region &region) {
-  region.walk(
+  /*region.walk(
     [&](Operation * op){
       //Quietly assume that each cache is only used once
       if (auto linalgOp = dyn_cast<linalg::LinalgOp>(op)){
@@ -60,7 +60,7 @@ void HoistCaches(Region &region) {
         }
       }
     }
-  );
+  );*/
 }
 
 struct HoistCachesPass : public enzyme::HoistCachesPassBase<HoistCachesPass> {
