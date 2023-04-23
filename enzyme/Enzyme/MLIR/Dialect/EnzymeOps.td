@@ -95,9 +95,9 @@ def Cache : Enzyme_Type<"Cache"> {
   let description = [{
     "Cache for reverse pass"
   }];
-  let parameters = (ins "Type":$type);
+  let parameters = (ins "Type":$innerType);
   let mnemonic = "Cache";
-  let assemblyFormat = "`<` $type `>`";
+  let assemblyFormat = "`<` $innerType `>`";
 }
 
 def SetOp : Enzyme_Op<"set"> {

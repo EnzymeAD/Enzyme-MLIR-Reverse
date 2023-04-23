@@ -126,7 +126,7 @@ public:
                                                   Region &region);
   void differentiate(MGradientUtilsReverse *gutils, Region &oldRegion,
                      Region &newRegion, bool parentRegion,
-                     brf buildFuncRetrunOp);
+                     brf buildFuncRetrunOp, std::function<std::pair<Value, Value>(Type)> cacheCreator);
 };
 
 } // Namespace enzyme

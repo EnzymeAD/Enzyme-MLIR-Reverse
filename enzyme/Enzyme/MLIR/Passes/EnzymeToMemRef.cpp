@@ -213,7 +213,7 @@ struct LoweredCache {
     return LoweredCache{.elements = unpackedCache.getResult(0),
                         .size = unpackedCache.getResult(1),
                         .capacity = unpackedCache.getResult(2),
-                        .elementType = cacheType.getType()};
+                        .elementType = cacheType.getInnerType()};
   }
 };
 
@@ -388,7 +388,7 @@ struct EnzymeToMemRefPass
         [](enzyme::CacheType type, SmallVectorImpl<Type> &resultTypes) {
           // Data
           resultTypes.push_back(MemRefType::get(
-              {}, MemRefType::get({ShapedType::kDynamicSize}, type.getType())));
+              {}, MemRefType::get({ShapedType::kDynamicSize}, type.getInnerType())));
           auto indexMemRefType =
               MemRefType::get({}, IndexType::get(type.getContext()));
           // Size

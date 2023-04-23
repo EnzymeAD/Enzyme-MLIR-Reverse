@@ -131,7 +131,7 @@ struct ForOpInterfaceReverse
     };
 
     gutils->Logic.differentiate(gutils, forOp.getRegion(), repFor.getRegion(),
-                                /*parentRegion=*/false, buildFuncReturnOp);
+                                /*parentRegion=*/false, buildFuncReturnOp, nullptr);
 
     // Insert the index which is carried by the scf for op.
     Type indexType = mlir::IndexType::get(

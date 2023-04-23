@@ -34,6 +34,8 @@
 #include "Implementations/CoreDialectsAutoDiffImplementations.h"
 #include "Passes/Passes.h"
 
+#include "Dialect/Ops.h"
+
 using namespace mlir;
 
 class MemRefInsider
@@ -89,6 +91,8 @@ int main(int argc, char **argv) {
     LLVM::LLVMPointerType::attachInterface<
         PtrElementModel<LLVM::LLVMPointerType>>(*ctx);
     LLVM::LLVMArrayType::attachInterface<PtrElementModel<LLVM::LLVMArrayType>>(
+        *ctx);
+    enzyme::CacheType::attachInterface<MemRefInsider>(
         *ctx);
   });
 

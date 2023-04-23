@@ -340,7 +340,8 @@ void MEnzymeLogic::initializeShadowValues(
 void MEnzymeLogic::differentiate(MGradientUtilsReverse *gutils,
                                  Region &oldRegion, Region &newRegion,
                                  bool parentRegion,
-                                 brf buildFuncReturnOp) {
+                                 brf buildFuncReturnOp, std::function<std::pair<Value, Value>(Type)> cacheCreator) {
+  gutils->registerCacheCreatorHook(cacheCreator);
   gutils->createReverseModeBlocks(oldRegion, newRegion, parentRegion);
 
   SmallVector<mlir::Block *> dominatorToposortBlocks =
@@ -359,6 +360,7 @@ void MEnzymeLogic::differentiate(MGradientUtilsReverse *gutils,
     handlePredecessors(oBB, newBB, reverseBB, gutils, buildFuncReturnOp,
                        parentRegion);
   }
+  gutils->deregisterCacheCreatorHook(cacheCreator);
 }
 
 FunctionOpInterface MEnzymeLogic::CreateReverseDiff(
@@ -387,13 +389,13 @@ FunctionOpInterface MEnzymeLogic::CreateReverseDiff(
     return;
   };
 
-  differentiate(gutils, oldRegion, newRegion, true, buildFuncReturnOp);
+  differentiate(gutils, oldRegion, newRegion, true, buildFuncReturnOp, nullptr);
 
   auto nf = gutils->newFunc;
 
-  //llvm::errs() << "nf\n";
-  //nf.dump();
-  //llvm::errs() << "nf end\n";
+  llvm::errs() << "nf\n";
+  nf.dump();
+  llvm::errs() << "nf end\n";
 
   delete gutils;
   return nf;
