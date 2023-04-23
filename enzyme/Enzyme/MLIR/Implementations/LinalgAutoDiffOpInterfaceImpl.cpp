@@ -127,14 +127,16 @@ struct GenericOpInterfaceReverse
     int numInputsAdjoint = adjoint.getInputs().size();
     Location loc = op->getLoc();
     int numCaches = 0;
-
+    SmallVector<Value> pushCaches;
 
     //std::function<std::pair<Value, Value>(Type)> hook = nullptr;
-    std::function<std::pair<Value, Value>(Type)> hook = [newOpRegion, adjointRegion, loc, &numCaches = numCaches, numInputsNewOp, numInputsAdjoint](Type t) {
-      Value pushCache = newOpRegion->insertArgument(numInputsNewOp + numCaches, t, loc);
-      adjointRegion->front().dump();
+    std::function<std::pair<Value, Value>(Type)> hook = [newOpRegion, adjointRegion, loc, &numCaches = numCaches, numInputsNewOp, numInputsAdjoint, &pushCaches = pushCaches](Type t) {
+      OpBuilder builder(newOpRegion);
+      Value pushCache = builder.create<enzyme::InitOp>(loc, t);
+      pushCaches.push_back(pushCache);
+      newOpRegion->addArgument(t, loc);
+
       Value popCache = adjointRegion->insertArgument(numInputsAdjoint + numCaches, t, loc);
-      adjointRegion->front().dump();
       numCaches++;
       return std::pair<Value, Value>(pushCache, popCache);
     };
@@ -142,6 +144,12 @@ struct GenericOpInterfaceReverse
     gutils->Logic.differentiate(gutils, *linalgOp.getBlock()->getParent(),
                                 adjoint.getBodyRegion(),
                                 /*parentRegion=*/false, buildFuncReturnOp, hook);
+
+    // TODO add pushCaches to the yield in newOp
+    auto newOpYield = cast<linalg::YieldOp>(cast<linalg::GenericOp>(newOp).getBodyRegion().front().getTerminator());
+    for (auto pc : pushCaches){
+      newOpYield.getValuesMutable().append(pc);
+    }
 
     Block * body = &(adjoint.getBodyRegion().front());
     auto yieldOp = cast<linalg::YieldOp>(body->getTerminator());
@@ -168,8 +176,8 @@ struct GenericOpInterfaceReverse
       Value cache = gutils->initAndPushCache(alloc, cacheBuilder);
       alloc.getDefiningOp()->setAttr("operand_segment_sizes", cacheBuilder.getDenseI32ArrayAttr({1,0}));
       
-      cast<linalg::GenericOp>(newOp).getInputsMutable().append(ValueRange({alloc}));
-      indexing_maps.insert(indexing_maps.begin() + numInputsNewOp + i, AffineMap::getMultiDimIdentityMap(iterationDomains.size(), cacheBuilder.getContext()));
+      cast<linalg::GenericOp>(newOp).getOutputsMutable().append(ValueRange({alloc}));
+      indexing_maps.push_back(AffineMap::getMultiDimIdentityMap(iterationDomains.size(), cacheBuilder.getContext()));
       
       OpBuilder builder2(adjoint);
       Value retrievedValue = gutils->popCache(cache, builder2);

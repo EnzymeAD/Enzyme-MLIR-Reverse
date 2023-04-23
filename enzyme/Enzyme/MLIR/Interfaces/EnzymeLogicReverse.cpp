@@ -393,9 +393,9 @@ FunctionOpInterface MEnzymeLogic::CreateReverseDiff(
 
   auto nf = gutils->newFunc;
 
-  llvm::errs() << "nf\n";
-  nf.dump();
-  llvm::errs() << "nf end\n";
+  //llvm::errs() << "nf\n";
+  //nf.dump();
+  //llvm::errs() << "nf end\n";
 
   delete gutils;
   return nf;
